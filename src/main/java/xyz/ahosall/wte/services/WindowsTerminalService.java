@@ -41,6 +41,7 @@ public class WindowsTerminalService {
       profile.setGuid(guid);
       profile.setName(p.optString("name", ""));
       profile.setCommandline(p.optString("commandline", ""));
+      profile.setElevate(p.optBoolean("elevate", false));
       profile.setHidden(p.optBoolean("hidden", false));
       profile.setStartingDirectory(p.optString("startingDirectory", ""));
       profile.setColorScheme(p.optString("colorScheme", ""));

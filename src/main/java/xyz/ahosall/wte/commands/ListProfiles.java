@@ -19,7 +19,8 @@ public class ListProfiles implements Runnable {
       for (TerminalProfile profile : profiles) {
         String profileName = profile.getName();
         String profileGuid = profile.getGuid().toString();
-        System.out.println(" - " + profileName + " (" + profileGuid + ")");
+        String isAdmin = profile.getElevate() ? "(admin mode)" : "";
+        System.out.println(" - " + profileName + " (" + profileGuid + ") " + isAdmin);
       }
     } catch (Exception e) {
       System.err.println("Failed to list profiles: " + e.getMessage());
