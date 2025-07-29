@@ -8,6 +8,7 @@ import xyz.ahosall.wte.commands.*;
 @Command(name = "wte", description = "Windows Terminal Editor", subcommands = {
     ListProfiles.class,
     AddProfile.class,
+    RemoveProfile.class,
     VersionUtil.class
 })
 public class App implements Runnable {

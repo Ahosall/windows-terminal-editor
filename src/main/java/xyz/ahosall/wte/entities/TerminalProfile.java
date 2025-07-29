@@ -12,27 +12,18 @@ public class TerminalProfile {
   private String commandline;
   private boolean hidden;
   private String startingDirectory;
-  private String colorScheme;
-  private String fontFace;
-  private int fontSize;
-  private String backgroundImage;
 
   public TerminalProfile() {
   }
 
   public TerminalProfile(UUID guid, Boolean elevate, String name, String commandline, boolean hidden,
-      String startingDirectory, String colorScheme, String fontFace,
-      int fontSize, String backgroundImage) {
+      String startingDirectory) {
     this.guid = guid;
     this.elevate = elevate;
     this.name = name;
     this.commandline = commandline;
     this.hidden = hidden;
     this.startingDirectory = startingDirectory;
-    this.colorScheme = colorScheme;
-    this.fontFace = fontFace;
-    this.fontSize = fontSize;
-    this.backgroundImage = backgroundImage;
   }
 
   // Getters e Setters
@@ -85,50 +76,16 @@ public class TerminalProfile {
     this.startingDirectory = startingDirectory;
   }
 
-  public String getColorScheme() {
-    return colorScheme;
-  }
-
-  public void setColorScheme(String colorScheme) {
-    this.colorScheme = colorScheme;
-  }
-
-  public String getFontFace() {
-    return fontFace;
-  }
-
-  public void setFontFace(String fontFace) {
-    this.fontFace = fontFace;
-  }
-
-  public int getFontSize() {
-    return fontSize;
-  }
-
-  public void setFontSize(int fontSize) {
-    this.fontSize = fontSize;
-  }
-
-  public String getBackgroundImage() {
-    return backgroundImage;
-  }
-
-  public void setBackgroundImage(String backgroundImage) {
-    this.backgroundImage = backgroundImage;
-  }
-
   public JSONObject toJson() {
     JSONObject json = new JSONObject();
+
     json.put("guid", "{" + getGuid().toString() + "}");
     json.put("name", getName());
     json.put("elevate", getElevate());
     json.put("commandline", getCommandline());
     json.put("hidden", isHidden());
     json.put("startingDirectory", getStartingDirectory());
-    json.put("colorScheme", getColorScheme());
-    json.put("fontFace", getFontFace());
-    json.put("font", new JSONObject().put("size", getFontSize()));
-    json.put("backgroundImage", getBackgroundImage());
+
     return json;
   }
 
@@ -141,10 +98,6 @@ public class TerminalProfile {
         ",\n  commandline='" + commandline + "\'" +
         ",\n  hidden=" + hidden + "" +
         ",\n  startingDirectory='" + startingDirectory + "\'" +
-        ",\n  colorScheme='" + colorScheme + "\'" +
-        ",\n  fontFace='" + fontFace + "\'" +
-        ",\n  fontSize=" + fontSize + "" +
-        ",\n  backgroundImage='" + backgroundImage + "\'" +
         "\n}";
   }
 
