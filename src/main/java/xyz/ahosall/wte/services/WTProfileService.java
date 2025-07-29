@@ -81,6 +81,29 @@ public class WTProfileService {
     repo.save(settingsJson.toString(2));
   }
 
+  public void editProfile(UUID guid, TerminalProfile terminal) {
+    JSONObject settingsJson = repo.get();
+    JSONObject terminalJson = terminal.toJson();
+
+    JSONArray profilesJson = settingsJson
+        .getJSONObject("profiles")
+        .getJSONArray("list")
+        .put(terminalJson);
+
+    for (int i = 0; i < profilesJson.length(); i++) {
+      JSONObject profileJson = profilesJson.getJSONObject(i);
+      UUID profileGuid = normalizeGuid(profileJson.optString("guid", null));
+
+      if (profileGuid != null && profileGuid.equals(guid)) {
+        profilesJson.put(i, terminalJson);
+        repo.save(settingsJson.toString(2));
+        return;
+      }
+    }
+
+    repo.save(settingsJson.toString(2));
+  }
+
   public void removeProfile(UUID guid) {
     JSONObject settingsJson = repo.get();
     JSONArray profilesJson = settingsJson.getJSONObject("profiles").getJSONArray("list");

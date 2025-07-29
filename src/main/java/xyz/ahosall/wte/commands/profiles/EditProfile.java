@@ -1,6 +1,4 @@
-package xyz.ahosall.wte.commands;
-
-import java.util.UUID;
+package xyz.ahosall.wte.commands.profiles;
 
 import picocli.CommandLine.*;
 
@@ -8,8 +6,11 @@ import xyz.ahosall.wte.entities.TerminalProfile;
 import xyz.ahosall.wte.repositories.WindowsTerminalRepository;
 import xyz.ahosall.wte.services.WTProfileService;
 
-@Command(name = "add-profile", description = "Add a new profile in the terminal")
-public class AddProfile implements Runnable {
+@Command(name = "edit", description = "Edit a profile in the terminal")
+public class EditProfile implements Runnable {
+
+  @Parameters(index = "0", description = "Unique profile identifier")
+  private String guid;
 
   @Option(names = "--name", description = "Profile name", required = true)
   private String name;
@@ -21,26 +22,31 @@ public class AddProfile implements Runnable {
   private Boolean isHidden;
   @Option(names = "--dir", description = "Directory where the profile is loaded", required = false)
   private String dir;
+  @Option(names = "--default", description = "Set default profile", required = false, defaultValue = "false")
+  private Boolean isDefault;
 
   @Override
   public void run() {
     try {
       WindowsTerminalRepository repo = new WindowsTerminalRepository();
       WTProfileService service = new WTProfileService(repo);
+      TerminalProfile profile = service.getProfile(guid);
 
-      TerminalProfile newProfile = new TerminalProfile();
-      newProfile.setGuid(UUID.randomUUID());
-      newProfile.setName(name);
-      newProfile.setElevate(onlyAdmin);
-      newProfile.setCommandline(cmdLine);
-      newProfile.setHidden(isHidden);
-      newProfile.setStartingDirectory(dir);
+      profile.setName(name);
+      profile.setElevate(onlyAdmin);
+      profile.setCommandline(cmdLine);
+      profile.setHidden(isHidden);
+      profile.setStartingDirectory(dir);
 
-      service.createProfile(newProfile);
+      service.editProfile(profile.getGuid(), profile);
 
-      System.out.println("New profile \"" + name + "\" added");
+      if (isDefault) {
+        service.setDefaultProfile(profile.getGuid());
+      }
+
+      System.out.println("Profile \"" + profile.getName() + "\" removido com sucesso");
     } catch (Exception e) {
-      System.err.println("Failed to add profile: " + e.getMessage());
+      System.err.println("Failed to remove profile: " + e.getMessage());
     }
   }
 }

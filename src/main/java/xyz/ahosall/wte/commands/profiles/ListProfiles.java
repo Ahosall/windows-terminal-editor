@@ -1,15 +1,20 @@
-package xyz.ahosall.wte.commands;
+package xyz.ahosall.wte.commands.profiles;
 
 import java.util.List;
 
-import picocli.CommandLine.Command;
+import picocli.CommandLine.*;
 
 import xyz.ahosall.wte.entities.TerminalProfile;
 import xyz.ahosall.wte.repositories.WindowsTerminalRepository;
 import xyz.ahosall.wte.services.WTProfileService;
 
-@Command(name = "list-profiles", description = "List all profiles registered on the terminal")
+@Command(name = "profiles", description = "List all profiles registered on the terminal", subcommands = {
+    NewProfile.class,
+    EditProfile.class,
+    RemoveProfile.class
+})
 public class ListProfiles implements Runnable {
+
   @Override
   public void run() {
     try {

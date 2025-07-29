@@ -3,12 +3,11 @@ package xyz.ahosall.wte;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-import xyz.ahosall.wte.commands.*;
+import xyz.ahosall.wte.commands.profiles.*;
+import xyz.ahosall.wte.commands.utils.*;
 
 @Command(name = "wte", description = "Windows Terminal Editor", subcommands = {
     ListProfiles.class,
-    AddProfile.class,
-    RemoveProfile.class,
     VersionUtil.class
 })
 public class App implements Runnable {

@@ -1,4 +1,4 @@
-package xyz.ahosall.wte.commands;
+package xyz.ahosall.wte.commands.utils;
 
 import picocli.CommandLine.Command;
 

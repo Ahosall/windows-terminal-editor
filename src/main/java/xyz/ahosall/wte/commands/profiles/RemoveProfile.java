@@ -1,11 +1,12 @@
-package xyz.ahosall.wte.commands;
+package xyz.ahosall.wte.commands.profiles;
 
 import picocli.CommandLine.*;
+
 import xyz.ahosall.wte.entities.TerminalProfile;
 import xyz.ahosall.wte.repositories.WindowsTerminalRepository;
 import xyz.ahosall.wte.services.WTProfileService;
 
-@Command(name = "remove-profile", description = "Remove a profile from the terminal")
+@Command(name = "remove", description = "Remove a profile from the terminal")
 public class RemoveProfile implements Runnable {
 
   @Option(names = "--guid", description = "Unique profile identifier", required = true)
