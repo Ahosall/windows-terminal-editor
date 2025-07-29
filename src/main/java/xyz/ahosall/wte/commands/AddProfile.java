@@ -48,7 +48,7 @@ public class AddProfile implements Runnable {
 
       service.createProfile(newProfile);
     } catch (Exception e) {
-      System.err.println("Failed to list profiles: " + e.getMessage());
+      System.err.println("Failed to add profile: " + e.getMessage());
     }
   }
 }
