@@ -16,53 +16,54 @@ public class WTProfileService {
   }
 
   public TerminalProfile getProfile(String guidStr) {
-    UUID profileGuid = normalizeGuid(guidStr);
+    UUID guid = normalizeGuid(guidStr);
+    JSONObject profileJson = getProfileByGuid(guid, repo.get());
 
-    TerminalProfile profile = new TerminalProfile();
-    JSONObject profileJson = getProfileByGuid(profileGuid);
-    profile.setGuid(profileGuid);
-    profile.setName(profileJson.optString("name", ""));
-    profile.setElevate(profileJson.optBoolean("elevate", false));
-    profile.setCommandline(profileJson.optString("commandline", ""));
-    profile.setHidden(profileJson.optBoolean("hidden", false));
-    profile.setStartingDirectory(profileJson.optString("startingDirectory", ""));
+    if (profileJson == null) {
+      throw new NoSuchElementException("Profile not found with GUID: " + guidStr);
+    }
 
-    return profile;
+    return mapJsonToProfile(profileJson);
   }
 
   public TerminalProfile getDefaultProfile() {
-    TerminalProfile profile = new TerminalProfile();
-    String profileDefaultGuid = repo.get().getString("defaultProfile");
+    JSONObject settingsJson = repo.get();
+    String guidStr = repo.get().getString("defaultProfile");
 
-    UUID profileGuid = normalizeGuid(profileDefaultGuid);
-    JSONObject profileJson = getProfileByGuid(profileGuid);
-    profile.setGuid(profileGuid);
-    profile.setName(profileJson.optString("name", ""));
-    profile.setElevate(profileJson.optBoolean("elevate", false));
-    profile.setCommandline(profileJson.optString("commandline", ""));
-    profile.setHidden(profileJson.optBoolean("hidden", false));
-    profile.setStartingDirectory(profileJson.optString("startingDirectory", ""));
+    if (guidStr == null) {
+      throw new IllegalStateException("No default profile set in settings");
+    }
 
-    return profile;
+    UUID guid = normalizeGuid(guidStr);
+    JSONObject profileJson = getProfileByGuid(guid, settingsJson);
+
+    if (profileJson == null) {
+      throw new NoSuchElementException("Default profile not found with GUID: " + guidStr);
+    }
+
+    return mapJsonToProfile(profileJson);
+  }
+
+  public void setDefaultProfile(UUID guid) {
+    JSONObject settingsJson = repo.get();
+    JSONObject profile = getProfileByGuid(guid, settingsJson);
+
+    if (profile == null) {
+      throw new NoSuchElementException("Cannot set default profile. GUID not found: " + guid);
+    }
+
+    settingsJson.put("defaultProfile", "{" + guid.toString() + "}");
+    repo.save(settingsJson.toString(2));
   }
 
   public List<TerminalProfile> listProfiles() {
-    List<TerminalProfile> profiles = new ArrayList<>();
-    JSONArray profilesJson = repo.get().getJSONObject("profiles").getJSONArray("list");
+    JSONObject settingsJson = repo.get();
+    JSONArray profilesJson = settingsJson.getJSONObject("profiles").getJSONArray("list");
 
+    List<TerminalProfile> profiles = new ArrayList<>();
     for (int i = 0; i < profilesJson.length(); i++) {
       JSONObject profileJson = profilesJson.getJSONObject(i);
-      UUID profileGuid = normalizeGuid(profileJson.getString("guid"));
-
-      TerminalProfile profile = new TerminalProfile();
-      profile.setGuid(profileGuid);
-      profile.setName(profileJson.optString("name", ""));
-      profile.setElevate(profileJson.optBoolean("elevate", false));
-      profile.setCommandline(profileJson.optString("commandline", ""));
-      profile.setHidden(profileJson.optBoolean("hidden", false));
-      profile.setStartingDirectory(profileJson.optString("startingDirectory", ""));
-
-      profiles.add(profile);
+      profiles.add(mapJsonToProfile(profileJson));
     }
 
     return profiles;
@@ -71,6 +72,7 @@ public class WTProfileService {
   public void createProfile(TerminalProfile terminal) {
     JSONObject terminalJson = terminal.toJson();
     JSONObject settingsJson = repo.get();
+
     settingsJson
         .getJSONObject("profiles")
         .getJSONArray("list")
@@ -80,43 +82,47 @@ public class WTProfileService {
   }
 
   public void removeProfile(UUID guid) {
-    JSONObject profileJson = getProfileByGuid(guid);
     JSONObject settingsJson = repo.get();
     JSONArray profilesJson = settingsJson.getJSONObject("profiles").getJSONArray("list");
 
-    if (profileJson != null) {
-      for (int i = 0; i < profilesJson.length(); i++) {
-        JSONObject profileFound = profilesJson.getJSONObject(i);
-        UUID profileGuid = normalizeGuid(profileFound.getString("guid"));
+    for (int i = 0; i < profilesJson.length(); i++) {
+      JSONObject profileJson = profilesJson.getJSONObject(i);
+      UUID profileGuid = normalizeGuid(profileJson.optString("guid", null));
 
-        if (profileGuid.equals(guid)) {
-          settingsJson.getJSONObject("profiles").getJSONArray("list").remove(i);
-          break;
-        }
+      if (profileGuid != null && profileGuid.equals(guid)) {
+        profilesJson.remove(i);
+        repo.save(settingsJson.toString(2));
+        return;
       }
-
-      repo.save(settingsJson.toString(2));
-      return;
     }
 
-    throw new Error("Profile not found");
+    throw new NoSuchElementException("Porfile not found with GUID: " + guid);
   }
 
-  private JSONObject getProfileByGuid(UUID guid) {
-    JSONObject profileFound = null;
-    JSONArray profilesJson = repo.get().getJSONObject("profiles").getJSONArray("list");
+  private JSONObject getProfileByGuid(UUID guid, JSONObject settingsJson) {
+    JSONArray profilesJson = settingsJson.getJSONObject("profiles").getJSONArray("list");
 
     for (int i = 0; i < profilesJson.length(); i++) {
       JSONObject profileJson = profilesJson.getJSONObject(i);
-      UUID profileGuid = normalizeGuid(profileJson.getString("guid"));
+      UUID profileGuid = normalizeGuid(profileJson.optString("guid", null));
 
-      if (profileGuid.equals(guid)) {
-        profileFound = profileJson;
-        break;
+      if (profileGuid != null && profileGuid.equals(guid)) {
+        return profileJson;
       }
     }
 
-    return profileFound;
+    return null;
+  }
+
+  private TerminalProfile mapJsonToProfile(JSONObject json) {
+    TerminalProfile profile = new TerminalProfile();
+    profile.setGuid(normalizeGuid(json.optString("guid", null)));
+    profile.setName(json.optString("name", ""));
+    profile.setElevate(json.optBoolean("elevate", false));
+    profile.setCommandline(json.optString("commandline", ""));
+    profile.setHidden(json.optBoolean("hidden", false));
+    profile.setStartingDirectory(json.optString("startingDirectory", ""));
+    return profile;
   }
 
   private UUID normalizeGuid(String guidStr) {
