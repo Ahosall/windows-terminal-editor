@@ -26,7 +26,7 @@ jobs:
       - name: Make zip
         run: |
           mkdir -p dist
-          ip -r dist/wte-${GITHUB_REF_NAME}.zip target/installer/
+          zip -r dist/wte-${GITHUB_REF_NAME}.zip target/installer/
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
