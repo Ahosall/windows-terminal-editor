@@ -4,11 +4,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import xyz.ahosall.wte.commands.profiles.*;
-import xyz.ahosall.wte.commands.utils.*;
 
 @Command(name = "wte", description = "Windows Terminal Editor", subcommands = {
-    ListProfiles.class,
-    VersionUtil.class
+    ListProfiles.class
 })
 public class App implements Runnable {
 

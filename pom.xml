@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project 
+    xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>xyz.ahosall.wte</groupId>
     <artifactId>windows-terminal-editor</artifactId>
-    <version>1.0-DEV</version>
-
+    <version>1.0.0</version>
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
     </properties>
-
     <dependencies>
+        <!-- Dependency to facilitate CLI creation -->
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.7.5</version>
         </dependency>
-
-
+        <!-- Dependency to easily manipulate JSON -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20240303</version>
         </dependency>
     </dependencies>
-
     <build>
-
         <plugins>
+            <!-- Plugin to generate the normal jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -47,7 +44,7 @@
                     </archive>
                 </configuration>
             </plugin>
-
+            <!-- Plugin to generate the fat jar -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.6.0</version>
@@ -62,21 +59,41 @@
                             <mainClass>xyz.ahosall.wte.App</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
                 </configuration>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                        <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+            <!-- Plugin to package in .EXE -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>package-app</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <input>${project.build.directory}</input>
+                    <destination>${project.build.directory}/installer</destination>
+                    <name>wte</name>
+                    <mainJar>wte.jar</mainJar>
+                    <mainClass>xyz.ahosall.wte.App</mainClass>
+                    <type>APP_IMAGE</type>
+                    <winConsole>true</winConsole>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
